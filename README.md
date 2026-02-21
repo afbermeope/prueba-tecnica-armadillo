@@ -1,31 +1,51 @@
-# FastAPI Ecosystem
+# Event Control System - EventLog (Prueba Técnica Armadillo)
 
-Estructura de proyecto profesional para FastAPI con versionamiento de endpoints.
+Este sistema permite la gestión y trazabilidad de recursos físicos para eventos, con una arquitectura modular y escalable.
 
-## Estructura de Carpetas
+## Requisitos
+- Python 3.10+
+- PostgreSQL
+- FastAPI + SQLAlchemy + Alembic
 
-- `app/`: Paquete principal de la aplicación.
-  - `api/`: Enrutamiento de la API.
-    - `api_v1/`: Endpoints de la Versión 1.
-  - `core/`: Configuraciones globales.
-  - `crud/`: Operaciones CRUD.
-  - `db/`: Conexión y sesión de base de datos.
-  - `models/`: Modelos de base de datos.
-  - `schemas/`: Modelos de Pydantic.
-- `main.py`: Punto de entrada de la aplicación.
+## Estructura Modular
 
-## Cómo ejecutar
+El proyecto sigue una organización por capas y una estructura de **un archivo por entidad**:
 
-1. Instalar dependencias:
+- `app/api/api_v1/endpoints/`: Endpoints descriptivos (`category_endpoints.py`, `item_endpoints.py`, etc.).
+- `app/services/`: Lógica de negocio modularizada (`resource_service.py`, `event_service.py`, etc.).
+- `app/models/`: Modelos SQLAlchemy separados por entidad.
+- `app/schemas/`: Esquemas Pydantic separados por entidad.
+- `app/db/`: Configuración de sesión y persistencia.
+
+## Configuración y Ejecución
+
+1. **Dependencias**:
    ```bash
    pip install -r requirements.txt
    ```
-
-2. Ejecutar el servidor:
+2. **Base de Datos**: 
+   - Configura el `DATABASE_URL` en el archivo `.env`. (Nombre recomendado: `prueba-tecnica-armadillo`).
+   - Ejecuta el script de creación inicial:
+     ```bash
+     python create_db.py
+     ```
+3. **Migraciones**:
+   - Aplica la estructura de tablas con Alembic:
+     ```bash
+     alembic upgrade head
+     ```
+4. **Ejecutar**:
    ```bash
    uvicorn app.main:app --reload
    ```
 
-3. Acceder a la documentación:
-   - Swagger UI: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-   - Redoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+## Trazabilidad y Flujo de Uso
+
+1. **Configurar Recursos**: Crea categorías en `/categories/` e ítems específicos en `/items/`.
+2. **Salida de Bodega**: Registra una salida en `/departures/` vinculando varios ítems.
+3. **Asignación a Eventos**: Desde `/departures/assignments/`, vincula los ítems de salida a los eventos planeados.
+4. **Retorno**: Registra la fecha de retorno en `/departures/returns/`.
+5. **Historial de Ítem**: Consulta toda la trayectoria de un activo en `/items/{id}/history`.
+
+## Documentación API
+Swagger UI: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)

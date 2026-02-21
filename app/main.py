@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from app.api.api_v1.api import api_router
 
 app = FastAPI(
-    title="FastAPI Ecosystem API",
+    title="FastAPI prueba técnica API",
     openapi_url="/api/v1/openapi.json"
 )
 
