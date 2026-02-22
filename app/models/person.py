@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from app.db.session import Base
 
 class Person(Base):
@@ -9,7 +10,7 @@ class Person(Base):
     identification_number = Column(String, unique=True, index=True, nullable=False)
     phone = Column(String, nullable=True)
     email = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     
-    # Relationships
     participations = relationship("EventParticipation", back_populates="person")
-    # Many-to-many with Event will be defined via association table in event.py or here
