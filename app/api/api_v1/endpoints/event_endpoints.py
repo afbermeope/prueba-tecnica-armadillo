@@ -14,5 +14,34 @@ def create_event(event: schemas.EventCreate, db: Session = Depends(get_db)):
 from datetime import date
 
 @router.get("/", response_model=List[schemas.Event])
-def read_events(skip: int = 0, limit: int = 100, name: str = None, location: str = None, date_from: date = None, date_to: date = None, db: Session = Depends(get_db)):
-    return service.get_events(db, skip=skip, limit=limit, name=name, location=location, date_from=date_from, date_to=date_to)
+def read_events(skip: int = 0, limit: int = 100, name: str = None, location: str = None, date_from: date = None, date_to: date = None, person_id: int = None, db: Session = Depends(get_db)):
+    return service.get_events(db, skip=skip, limit=limit, name=name, location=location, date_from=date_from, date_to=date_to, person_id=person_id)
+
+@router.post("/{event_id}/personnel/{person_id}", response_model=schemas.EventParticipation)
+def assign_personnel(event_id: int, person_id: int, role_id: int = None, db: Session = Depends(get_db)):
+    return service.assign_personnel(db, event_id=event_id, person_id=person_id, role_id=role_id)
+    
+@router.post("/{event_id}/resources", response_model=schemas.ResourceAssignment)
+def assign_resource(event_id: int, assignment: schemas.ResourceAssignmentCreate, db: Session = Depends(get_db)):
+    return service.assign_resources(db, assignment=assignment)
+
+@router.post("/assignments/{assignment_id}/deliver", response_model=schemas.ResourceAssignment)
+def deliver_resource(assignment_id: int, db: Session = Depends(get_db)):
+    return service.deliver_resource(db, assignment_id=assignment_id)
+
+@router.post("/assignments/{assignment_id}/return", response_model=schemas.ResourceAssignment)
+def return_resource(assignment_id: int, db: Session = Depends(get_db)):
+    return service.return_resource(db, assignment_id=assignment_id)
+
+@router.delete("/{event_id}/personnel/{person_id}")
+def remove_personnel(event_id: int, person_id: int, db: Session = Depends(get_db)):
+    return service.remove_personnel(db, event_id=event_id, person_id=person_id)
+
+@router.put("/{event_id}", response_model=schemas.Event)
+def update_event(event_id: int, event: schemas.EventCreate, db: Session = Depends(get_db)):
+    return service.update_event(db=db, event_id=event_id, event=event)
+
+@router.delete("/{event_id}")
+def delete_event(event_id: int, db: Session = Depends(get_db)):
+    service.delete_event(db=db, event_id=event_id)
+    return {"detail": "Event deleted successfully"}

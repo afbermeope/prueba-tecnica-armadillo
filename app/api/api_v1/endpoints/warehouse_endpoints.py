@@ -1,32 +1,24 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
-from app.services import departure_service as service
-from app.schemas import departure as schemas
-from app.schemas import resource as resource_schemas
+from app.services import warehouse_service as service
+from app.schemas import warehouse as schemas
 from app.db.session import get_db
-
-from datetime import datetime
 
 router = APIRouter()
 
-@router.get("/", response_model=List[schemas.WarehouseDeparture])
-def read_departures(skip: int = 0, limit: int = 100, responsible_person: str = None, date_from: datetime = None, date_to: datetime = None, db: Session = Depends(get_db)):
-    return service.get_departures(db, skip=skip, limit=limit, responsible_person=responsible_person, date_from=date_from, date_to=date_to)
+@router.get("/", response_model=List[schemas.Warehouse])
+def read_warehouses(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return service.get_warehouses(db, skip=skip, limit=limit)
 
-@router.post("/", response_model=schemas.WarehouseDeparture)
-def create_departure(departure: schemas.WarehouseDepartureCreate, db: Session = Depends(get_db)):
-    return service.create_departure(db=db, departure=departure)
+@router.post("/", response_model=schemas.Warehouse)
+def create_warehouse(warehouse: schemas.WarehouseCreate, db: Session = Depends(get_db)):
+    return service.create_warehouse(db=db, warehouse=warehouse)
 
-@router.get("/{departure_id}/items", response_model=List[resource_schemas.ResourceItem])
-def read_departure_items(departure_id: int, db: Session = Depends(get_db)):
-    return service.get_items_by_departure(db, departure_id=departure_id)
+@router.put("/{warehouse_id}/stock", response_model=schemas.WarehouseStock)
+def update_stock(warehouse_id: int, item_id: int, quantity: int, db: Session = Depends(get_db)):
+    return service.update_stock(db=db, warehouse_id=warehouse_id, item_id=item_id, quantity=quantity)
 
-@router.post("/assign", status_code=201)
-def assign_to_events(departure_item_ids: List[int], event_ids: List[int], db: Session = Depends(get_db)):
-    return service.assign_items_to_events(db, departure_item_ids=departure_item_ids, event_ids=event_ids)
-
-@router.post("/return", status_code=200)
-def return_resources(departure_item_ids: List[int], db: Session = Depends(get_db)):
-    service.return_items(db, departure_item_ids=departure_item_ids)
-    return {"message": "Items returned successfully"}
+@router.get("/{warehouse_id}/stock", response_model=List[schemas.WarehouseStock])
+def read_warehouse_stock(warehouse_id: int, db: Session = Depends(get_db)):
+    return service.get_warehouse_stock(db=db, warehouse_id=warehouse_id)

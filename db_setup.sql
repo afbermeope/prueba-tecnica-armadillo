@@ -1,52 +1,81 @@
--- Script de creación de base de datos para Control de Recursos
-
--- Categorías de Recursos
-CREATE TABLE IF NOT EXISTS resource_categories (
+-- Personas (Responsables y participantes)
+CREATE TABLE IF NOT EXISTS persons (
     id SERIAL PRIMARY KEY,
-    name VARCHAR UNIQUE NOT NULL,
-    description TEXT
+    full_name VARCHAR NOT NULL,
+    identification_number VARCHAR UNIQUE NOT NULL,
+    phone VARCHAR,
+    email VARCHAR
 );
 
--- Items de Recursos Físicos
+-- Bodegas
+CREATE TABLE IF NOT EXISTS warehouses (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR UNIQUE NOT NULL,
+    location VARCHAR,
+    address VARCHAR
+);
+
+-- Catálogo de Recursos Físicos (Definición genérica)
 CREATE TABLE IF NOT EXISTS resource_items (
     id SERIAL PRIMARY KEY,
-    category_id INTEGER REFERENCES resource_categories(id),
-    serial_number VARCHAR UNIQUE NOT NULL,
-    status VARCHAR DEFAULT 'in_warehouse'
+    name VARCHAR UNIQUE NOT NULL
+);
+
+-- Stock en Bodegas (Unidad de medida: Ítem por Bodega)
+CREATE TABLE IF NOT EXISTS warehouse_stocks (
+    id SERIAL PRIMARY KEY,
+    warehouse_id INTEGER REFERENCES warehouses(id),
+    item_id INTEGER REFERENCES resource_items(id),
+    quantity INTEGER DEFAULT 0
+);
+
+-- Lugares (Sedes para eventos)
+CREATE TABLE IF NOT EXISTS locations (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR UNIQUE NOT NULL,
+    address VARCHAR,
+    city VARCHAR,
+    capacity INTEGER
 );
 
 -- Eventos
 CREATE TABLE IF NOT EXISTS events (
     id SERIAL PRIMARY KEY,
     name VARCHAR NOT NULL,
-    location VARCHAR NOT NULL,
-    date DATE NOT NULL
+    location_id INTEGER REFERENCES locations(id),
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL
 );
 
--- Salidas de Bodega
-CREATE TABLE IF NOT EXISTS warehouse_departures (
+-- Participación en Eventos (Entidad intermedia completa)
+CREATE TABLE IF NOT EXISTS event_participations (
     id SERIAL PRIMARY KEY,
-    departure_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    responsible_person VARCHAR NOT NULL
+    event_id INTEGER REFERENCES events(id),
+    person_id INTEGER REFERENCES persons(id),
+    role VARCHAR,
+    UNIQUE(event_id, person_id)
 );
 
--- Items en una Salida (Trazabilidad de retorno)
-CREATE TABLE IF NOT EXISTS departure_items (
+-- Asignación de Recursos (Vinculado a la Participación y al Stock)
+CREATE TABLE IF NOT EXISTS resource_assignments (
     id SERIAL PRIMARY KEY,
-    departure_id INTEGER REFERENCES warehouse_departures(id),
-    item_id INTEGER REFERENCES resource_items(id),
-    return_date TIMESTAMP
-);
-
--- Asignación de Items a Eventos (Muchos a Muchos)
-CREATE TABLE IF NOT EXISTS event_assignments (
-    id SERIAL PRIMARY KEY,
-    departure_item_id INTEGER REFERENCES departure_items(id),
-    event_id INTEGER REFERENCES events(id)
+    participation_id INTEGER REFERENCES event_participations(id),
+    warehouse_stock_id INTEGER REFERENCES warehouse_stocks(id),
+    assigned_quantity INTEGER NOT NULL,
+    serial_number VARCHAR,
+    status VARCHAR DEFAULT 'assigned', -- assigned, delivered, returned
+    assignment_date DATE DEFAULT CURRENT_DATE,
+    delivery_date DATE,
+    return_date DATE
 );
 
 -- Índices para búsqueda rápida
-CREATE INDEX IF NOT EXISTS idx_resource_items_serial ON resource_items(serial_number);
-CREATE INDEX IF NOT EXISTS idx_events_date ON events(date);
-CREATE INDEX IF NOT EXISTS idx_departure_items_departure ON departure_items(departure_id);
-CREATE INDEX IF NOT EXISTS idx_event_assignments_event ON event_assignments(event_id);
+CREATE INDEX IF NOT EXISTS idx_resource_items_name ON resource_items(name);
+CREATE INDEX IF NOT EXISTS idx_events_dates ON events(start_date, end_date);
+CREATE INDEX IF NOT EXISTS idx_persons_id_number ON persons(identification_number);
+CREATE INDEX IF NOT EXISTS idx_warehouse_stocks_query ON warehouse_stocks(warehouse_id, item_id);
+CREATE INDEX IF NOT EXISTS idx_assignments_stock ON resource_assignments(warehouse_stock_id);
+CREATE INDEX IF NOT EXISTS idx_assignments_participation ON resource_assignments(participation_id);
+CREATE INDEX IF NOT EXISTS idx_participations_event ON event_participations(event_id);
+CREATE INDEX IF NOT EXISTS idx_participations_person ON event_participations(person_id);
+CREATE INDEX IF NOT EXISTS idx_events_location ON events(location_id);
