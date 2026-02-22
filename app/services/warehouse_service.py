@@ -54,3 +54,11 @@ def update_stock(db: Session, warehouse_id: int, item_id: int, quantity: int):
 
 def get_warehouse_stock(db: Session, warehouse_id: int):
     return db.query(models.WarehouseStock).filter(models.WarehouseStock.warehouse_id == warehouse_id).all()
+
+def get_all_stocks(db: Session, warehouse_id: int = None, item_id: int = None, skip: int = 0, limit: int = 100):
+    query = db.query(models.WarehouseStock)
+    if warehouse_id:
+        query = query.filter(models.WarehouseStock.warehouse_id == warehouse_id)
+    if item_id:
+        query = query.filter(models.WarehouseStock.item_id == item_id)
+    return query.offset(skip).limit(limit).all()

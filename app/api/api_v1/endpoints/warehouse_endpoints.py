@@ -22,3 +22,7 @@ def update_stock(warehouse_id: int, item_id: int, quantity: int, db: Session = D
 @router.get("/{warehouse_id}/stock", response_model=List[schemas.WarehouseStock])
 def read_warehouse_stock(warehouse_id: int, db: Session = Depends(get_db)):
     return service.get_warehouse_stock(db=db, warehouse_id=warehouse_id)
+
+@router.get("/stocks", response_model=List[schemas.WarehouseStock])
+def read_all_stocks(warehouse_id: int = None, item_id: int = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return service.get_all_stocks(db=db, warehouse_id=warehouse_id, item_id=item_id, skip=skip, limit=limit)

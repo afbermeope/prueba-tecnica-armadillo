@@ -13,6 +13,10 @@ def create_event(event: schemas.EventCreate, db: Session = Depends(get_db)):
 
 from datetime import date
 
+@router.get("/participations", response_model=List[schemas.EventParticipation])
+def read_all_participations(event_id: int = None, person_id: int = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return service.get_all_participations(db, event_id=event_id, person_id=person_id, skip=skip, limit=limit)
+
 @router.get("/assignments", response_model=List[schemas.AssignmentDetail])
 def read_all_assignments(skip: int = 0, limit: int = 100, event_name: str = None, person_name: str = None, item_name: str = None, db: Session = Depends(get_db)):
     return service.get_all_assignments(db, skip=skip, limit=limit, event_name=event_name, person_name=person_name, item_name=item_name)

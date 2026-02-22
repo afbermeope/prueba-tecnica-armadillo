@@ -190,3 +190,11 @@ def get_all_assignments(db: Session, skip: int = 0, limit: int = 100, event_name
     if item_name:
         query = query.filter(Item.name.ilike(f"%{item_name}%"))
     return query.offset(skip).limit(limit).all()
+
+def get_all_participations(db: Session, event_id: int = None, person_id: int = None, skip: int = 0, limit: int = 100):
+    query = db.query(models.EventParticipation)
+    if event_id:
+        query = query.filter(models.EventParticipation.event_id == event_id)
+    if person_id:
+        query = query.filter(models.EventParticipation.person_id == person_id)
+    return query.offset(skip).limit(limit).all()
