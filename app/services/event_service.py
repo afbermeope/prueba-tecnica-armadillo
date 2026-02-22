@@ -158,3 +158,35 @@ def return_resource(db: Session, assignment_id: int):
     db.commit()
     db.refresh(db_assignment)
     return db_assignment
+
+def get_all_assignments(db: Session, skip: int = 0, limit: int = 100, event_name: str = None, person_name: str = None, item_name: str = None):
+    from app.models.warehouse import Warehouse, WarehouseStock
+    from app.models.item import Item
+    
+    query = db.query(
+        models.ResourceAssignment.id.label("assignment_id"),
+        models.Event.name.label("event_name"),
+        models.Event.start_date.label("event_start_date"),
+        models.Event.end_date.label("event_end_date"),
+        Person.full_name.label("person_name"),
+        Item.name.label("item_name"),
+        models.ResourceAssignment.assigned_quantity.label("assigned_quantity"),
+        Warehouse.name.label("warehouse_name"),
+        models.ResourceAssignment.status.label("status"),
+        models.ResourceAssignment.assignment_date.label("assignment_date"),
+        models.ResourceAssignment.delivery_date.label("delivery_date"),
+        models.ResourceAssignment.return_date.label("return_date"),
+    ).select_from(models.ResourceAssignment) \
+     .join(models.EventParticipation, models.ResourceAssignment.participation_id == models.EventParticipation.id) \
+     .join(models.Event, models.EventParticipation.event_id == models.Event.id) \
+     .join(Person, models.EventParticipation.person_id == Person.id) \
+     .join(WarehouseStock, models.ResourceAssignment.warehouse_stock_id == WarehouseStock.id) \
+     .join(Item, WarehouseStock.item_id == Item.id) \
+     .join(Warehouse, WarehouseStock.warehouse_id == Warehouse.id)
+    if event_name:
+        query = query.filter(models.Event.name.ilike(f"%{event_name}%"))
+    if person_name:
+        query = query.filter(Person.full_name.ilike(f"%{person_name}%"))
+    if item_name:
+        query = query.filter(Item.name.ilike(f"%{item_name}%"))
+    return query.offset(skip).limit(limit).all()

@@ -64,3 +64,21 @@ class ResourceAssignment(ResourceAssignmentBase):
     assignment_date: date
     class Config:
         from_attributes = True
+
+# Rich view for listing all assignments
+class AssignmentDetail(BaseModel):
+    assignment_id: int
+    event_name: str
+    event_start_date: date
+    event_end_date: date
+    person_name: str
+    item_name: str
+    assigned_quantity: int
+    warehouse_name: str
+    status: str
+    assignment_date: date
+    delivery_date: Optional[date]
+    return_date: Optional[date]
+    
+    class Config:
+        from_attributes = True
