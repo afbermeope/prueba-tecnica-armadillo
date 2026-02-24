@@ -4,11 +4,11 @@ from app.core.config import settings
 from urllib.parse import urlparse
 
 def create_database():
-    # URL de conexión (extraída de settings)
+    # URL de conexión
     db_url = settings.DATABASE_URL
     parsed_url = urlparse(db_url)
     
-    # Datos de conexión al servidor (sin el nombre de la DB objetivo)
+    # Datos de conexión al servidor
     dbname = parsed_url.path[1:]
     user = parsed_url.username
     password = parsed_url.password

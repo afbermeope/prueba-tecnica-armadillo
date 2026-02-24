@@ -27,4 +27,4 @@ def update_item(item_id: int, item: schemas.ItemCreate, db: Session = Depends(ge
 @router.delete("/{item_id}")
 def delete_item(item_id: int, db: Session = Depends(get_db)):
     service.delete_item(db=db, item_id=item_id)
-    return {"detail": "Item deleted successfully"}
+    return {"detail": "Item eliminado exitosamente"}

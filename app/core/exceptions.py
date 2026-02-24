@@ -5,7 +5,7 @@ class BusinessException(Exception):
 
 class EntityNotFoundException(BusinessException):
     def __init__(self, entity_name: str, entity_id: any):
-        super().__init__(f"{entity_name} with id {entity_id} not found", 404)
+        super().__init__(f"{entity_name} con id {entity_id} no encontrado", 404)
 
 class IntegrityViolationException(BusinessException):
     def __init__(self, message: str):

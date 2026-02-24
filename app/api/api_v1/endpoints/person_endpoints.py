@@ -26,4 +26,4 @@ def update_person(person_id: int, person: schemas.PersonCreate, db: Session = De
 @router.delete("/{person_id}")
 def delete_person(person_id: int, db: Session = Depends(get_db)):
     service.delete_person(db=db, person_id=person_id)
-    return {"detail": "Person deleted successfully"}
+    return {"detail": "Personal eliminado exitosamente"}

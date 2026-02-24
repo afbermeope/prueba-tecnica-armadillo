@@ -52,4 +52,4 @@ def update_event(event_id: int, event: schemas.EventCreate, db: Session = Depend
 @router.delete("/{event_id}")
 def delete_event(event_id: int, db: Session = Depends(get_db)):
     service.delete_event(db=db, event_id=event_id)
-    return {"detail": "Event deleted successfully"}
+    return {"detail": "Evento eliminado exitosamente"}

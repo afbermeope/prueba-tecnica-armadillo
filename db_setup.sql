@@ -69,6 +69,15 @@ CREATE TABLE IF NOT EXISTS resource_assignments (
     return_date DATE
 );
 
+--Asignacion de stock a eventos
+CREATE TABLE IF NOT EXISTS event_warehouse_stocks (
+    id SERIAL PRIMARY KEY,
+    event_id INTEGER REFERENCES events(id),
+    warehouse_stock_id INTEGER REFERENCES warehouse_stocks(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Índices para búsqueda rápida
 CREATE INDEX IF NOT EXISTS idx_resource_items_name ON resource_items(name);
 CREATE INDEX IF NOT EXISTS idx_events_dates ON events(start_date, end_date);

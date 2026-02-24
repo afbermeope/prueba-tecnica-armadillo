@@ -18,17 +18,17 @@ def update_stock(db: Session, warehouse_id: int, item_id: int, quantity: int):
     from fastapi import HTTPException
     from app.models.item import Item
     
-    # Check if warehouse exists
+    # Validar que exista el warehouse
     warehouse = db.query(models.Warehouse).filter(models.Warehouse.id == warehouse_id).first()
     if not warehouse:
         raise EntityNotFoundException("Warehouse", warehouse_id)
     
-    # Check if item exists
+    # Validar que exista el item
     item = db.query(Item).filter(Item.id == item_id).first()
     if not item:
         raise EntityNotFoundException("Item", item_id)
     
-    # Check if stock entry exists
+    # Validar que exista el stock
     db_stock = db.query(models.WarehouseStock).filter(
         models.WarehouseStock.warehouse_id == warehouse_id,
         models.WarehouseStock.item_id == item_id

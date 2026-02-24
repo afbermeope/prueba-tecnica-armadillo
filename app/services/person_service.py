@@ -6,7 +6,7 @@ from app.core.exceptions import EntityNotFoundException, IntegrityViolationExcep
 def create_person(db: Session, person: PersonCreate):
     existing = db.query(Person).filter(Person.identification_number == person.identification_number).first()
     if existing:
-        raise IntegrityViolationException(f"Person with identification {person.identification_number} already exists")
+        raise IntegrityViolationException(f"Personal con identificación {person.identification_number} ya existe")
     db_person = Person(**person.dict())
     db.add(db_person)
     db.commit()
@@ -32,7 +32,7 @@ def update_person(db: Session, person_id: int, person: PersonCreate):
     if person.identification_number != db_person.identification_number:
         existing = db.query(Person).filter(Person.identification_number == person.identification_number).first()
         if existing:
-            raise IntegrityViolationException(f"Person with identification {person.identification_number} already exists")
+            raise IntegrityViolationException(f"Personal con identificación {person.identification_number} ya existe")
             
     for var, value in person.dict().items():
         setattr(db_person, var, value)

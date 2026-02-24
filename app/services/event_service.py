@@ -103,14 +103,14 @@ def remove_personnel(db: Session, event_id: int, person_id: int):
     return True
 
 def assign_resources(db: Session, assignment: schemas.ResourceAssignmentCreate):
-    # Check participation
+    # Validar que exista la participación
     db_participation = db.query(models.EventParticipation).filter(
         models.EventParticipation.id == assignment.participation_id
     ).first()
     if not db_participation:
         raise EntityNotFoundException("EventParticipation", assignment.participation_id)
     
-    # Check stock
+    # Validar que esté en stock
     db_stock = db.query(WarehouseStock).filter(
         WarehouseStock.id == assignment.warehouse_stock_id
     ).first()
@@ -118,11 +118,11 @@ def assign_resources(db: Session, assignment: schemas.ResourceAssignmentCreate):
         raise EntityNotFoundException("WarehouseStock", assignment.warehouse_stock_id)
         
     if db_stock.quantity < assignment.assigned_quantity:
-        raise IntegrityViolationException(f"Insufficient stock. Available: {db_stock.quantity}")
+        raise IntegrityViolationException(f"Stock insuficiente. Disponible: {db_stock.quantity}")
 
     db_assignment = models.ResourceAssignment(**assignment.dict())
     
-    # Deduct quantity
+    # Restar cantidad
     db_stock.quantity -= assignment.assigned_quantity
     
     db.add(db_assignment)
