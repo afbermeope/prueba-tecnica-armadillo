@@ -5,13 +5,12 @@ from app.services import event_service as service
 from app.schemas import event as schemas
 from app.db.session import get_db
 
+from datetime import date
 router = APIRouter()
 
 @router.post("/", response_model=schemas.Event)
 def create_event(event: schemas.EventCreate, db: Session = Depends(get_db)):
     return service.create_event(db=db, event=event)
-
-from datetime import date
 
 @router.get("/participations", response_model=List[schemas.EventParticipation])
 def read_all_participations(event_id: int = None, person_id: int = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):

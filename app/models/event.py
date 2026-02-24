@@ -47,14 +47,3 @@ class ResourceAssignment(Base):
     
     participation = relationship("EventParticipation", back_populates="resource_assignments")
     warehouse_stock = relationship("WarehouseStock", back_populates="assignments")
-
-class EventWarehouseStock(Base):
-    __tablename__ = "event_warehouse_stocks"
-    id = Column(Integer, primary_key=True, index=True)
-    event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
-    warehouse_stock_id = Column(Integer, ForeignKey("warehouse_stocks.id"), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
-    
-    event = relationship("Event", back_populates="warehouse_stocks")
-    warehouse_stock = relationship("WarehouseStock", back_populates="events")
